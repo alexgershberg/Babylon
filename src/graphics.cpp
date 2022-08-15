@@ -14,6 +14,10 @@ WindowBuffer getWindowBuffer()
 
 void render(WindowBuffer &windowBuffer)
 {
+
+    std::string color = "\033[?25l\033[48;2;256;120;0m"; // "\033[48;2;{r};{g};{b}m"
+    std::cout << color;
+
     auto output = windowBuffer.output;
     for (auto row : output)
     {
@@ -26,7 +30,7 @@ void render(WindowBuffer &windowBuffer)
 }
 
 // Add row numbers to window buffer
-void assemble_basic(WindowBuffer &windowBuffer)
+void assemble_with_rows(WindowBuffer &windowBuffer)
 {
     std::vector<std::vector<char>> output;
     for (int i = 0; i < windowBuffer.rows; ++i)
@@ -50,23 +54,78 @@ void assemble_basic(WindowBuffer &windowBuffer)
     windowBuffer.output = output;
 }
 
-void draw_shape(WindowBuffer &windowBuffer)
+void assemble_empty(WindowBuffer &windowBuffer)
 {
-    auto row_middle = floor(windowBuffer.rows / 2);
-    auto col_middle = floor(windowBuffer.cols / 2);
+    std::vector<std::vector<char>> output;
+    for (int i = 0; i < windowBuffer.rows; ++i)
+    {
+        std::stringstream row;
+        for (int j = 0; j < windowBuffer.cols; ++j)
+        {
+            row << " ";
+        }
 
-    windowBuffer.output[row_middle][col_middle] = '*';
+        std::vector<char> row_vector;
+        auto tmp = row.str();
 
-    drawline(windowBuffer, row_middle + 8, col_middle - 28, row_middle - 8, col_middle - 28);
-
-    drawline(windowBuffer, row_middle + 15, col_middle - 14, row_middle - 15, col_middle - 14);
-    drawline(windowBuffer, row_middle - 3, col_middle - 9, row_middle - 3, col_middle - 9);
+        std::copy(tmp.begin(), tmp.end(), std::back_inserter(row_vector));
+        output.push_back(row_vector);
+    }
+    windowBuffer.output = output;
 }
 
-void drawline(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2)
+void draw_shape(WindowBuffer &windowBuffer)
 {
-    // Rasterize?
-    windowBuffer.output[x1][y1] = 'A';
+    int row_middle = floor(windowBuffer.rows / 2);
+    int col_middle = floor(windowBuffer.cols / 2);
+    windowBuffer.output[row_middle][col_middle] = '*';
 
-    windowBuffer.output[x2][y2] = 'B';
+    int constIncr = 5;
+    drawline(windowBuffer, 0, 0, 20, 50);
+
+    // drawline(windowBuffer, 71, 22, 90, 25);
+    // drawline(windowBuffer, col_middle - constIncr, row_middle - constIncr, col_middle + constIncr,
+    //         row_middle - constIncr);
+
+    // drawline(windowBuffer, col_middle + constIncr, row_middle - constIncr, col_middle + constIncr,
+    //          row_middle + constIncr);
+
+    // drawline(windowBuffer, col_middle + constIncr, row_middle + constIncr, col_middle - constIncr,
+    //          row_middle + constIncr);
+
+    // drawline(windowBuffer, col_middle - constIncr, row_middle + constIncr, col_middle - constIncr,
+    //          row_middle - constIncr);
+}
+
+void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel)
+{
+    windowBuffer.output[windowBuffer.rows - y - 1][x] = pixel;
+}
+
+// Algorithm implementing Bresenham's algorithm
+void drawline(WindowBuffer &windowBuffer, int x0, int y0, int x1, int y1)
+{
+
+    int dx, dy, p, x, y;
+    dx = x1 - x0;
+    dy = y1 - y0;
+    x = x0;
+    y = y0;
+    p = 2 * dy - dx;
+    while (x < x1)
+    {
+        if (p >= 0)
+        {
+            drawPixel(windowBuffer, x, y, '*');
+            y = y + 1;
+            p = p + 2 * dy - 2 * dx;
+        }
+        else
+        {
+
+            drawPixel(windowBuffer, x, y, '*');
+            p = p + 2 * dy;
+        }
+        x = x + 1;
+    }
 }
