@@ -1,27 +1,46 @@
-#include <functional>
+#include <curses.h> // "man ncurses" for manual page
+
 #include <iostream>
 
-#include "graphics.hpp"
+#include "draw.hpp"
 #include "parameters.hpp"
 
 int main(int argc, char *argv[], char *environ[])
 {
-    // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
-    // std::string color1 = "\033[33;44m";
-    // Main rendering loop
     bool DEBUG_MODE = parseParameters(argc, argv, environ);
 
+    // Curses defaults
+    if (!DEBUG_MODE)
+    {
+        initscr(); // Start curses mode.
+        nonl();
+        cbreak();
+        noecho();
+    }
+    // Main rendering loop
     while (true)
     {
         auto windowBuffer = getWindowBuffer();
 
-        assemble_empty(windowBuffer);
-        draw_shape(windowBuffer);
+        assembleEmpty(windowBuffer);
+
+        CubeMesh cube;
+        auto cubeMesh = cube.getDefaultCubeMesh();
+
+        drawShape(windowBuffer, cubeMesh);
+
         if (!DEBUG_MODE)
         {
             render(windowBuffer);
+            refresh(); // Refresh the window.
         }
+
         usleep(200000);
+    }
+
+    if (!DEBUG_MODE)
+    {
+        endwin(); // End curses mode.
     }
 
     return 0;

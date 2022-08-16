@@ -1,131 +1,91 @@
 #include <cmath>
-#include <iostream>
-#include <sstream>
 
 #include "graphics.hpp"
 
-WindowBuffer getWindowBuffer()
+Vector3D operator*(Vector3D const &vector, Matrix const &matrix)
 {
-    struct winsize window;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); // Get window rows and columns
-    WindowBuffer windowBuffer = {window.ws_row, window.ws_col};
-    return windowBuffer;
-}
+    auto x = vector.x * matrix[0][0] + vector.y * matrix[1][0] + vector.z * matrix[2][0] * matrix[3][0];
+    auto y = vector.x * matrix[0][1] + vector.y * matrix[1][1] + vector.z * matrix[2][1] * matrix[3][1];
+    auto z = vector.x * matrix[0][2] + vector.y * matrix[1][2] + vector.z * matrix[2][2] * matrix[3][2];
+    auto w = vector.x * matrix[0][3] + vector.y * matrix[1][3] + vector.z * matrix[2][3] * matrix[3][3];
 
-void render(WindowBuffer &windowBuffer)
-{
-
-    std::string color = "\033[?25l\033[48;2;256;120;0m"; // "\033[48;2;{r};{g};{b}m"
-    std::cout << color;
-
-    auto output = windowBuffer.output;
-    for (auto row : output)
+    if (w != 0.0)
     {
-        for (auto ch : row)
-        {
-            std::cout << ch;
-        }
+        x = x / w;
+        y = y / w;
+        z = z / w;
     }
-    std::cout << std::flush;
+
+    return Vector3D(x, y, z);
 }
 
-// Add row numbers to window buffer
-void assemble_with_rows(WindowBuffer &windowBuffer)
+CubeMesh::CubeMesh()
 {
-    std::vector<std::vector<char>> output;
-    for (int i = 0; i < windowBuffer.rows; ++i)
-    {
-        std::stringstream row;
-        auto num = std::to_string(i);
-        row << num;
-        // Get literal lenght of the row num string,
-        // and substract that from the total number of pixels we need to populate
-        for (int j = 0; j < windowBuffer.cols - num.length(); ++j)
-        {
-            row << " ";
-        }
+    std::vector<Vector3D> cubeMesh = {// front
+                                      {-0.5, 0.5, -0.5},
+                                      {-0.5, -0.5, -0.5},
+                                      {0.5, -0.5, -0.5},
+                                      {-0.5, 0.5, -0.5},
+                                      {0.5, -0.5, -0.5},
+                                      {0.5, 0.5, -0.5},
 
-        std::vector<char> row_vector;
-        auto tmp = row.str();
+                                      // top
+                                      {-0.5, -0.5, -0.5},
+                                      {-0.5, -0.5, 0.5},
+                                      {0.5, -0.5, 0.5},
+                                      {-0.5, -0.5, -0.5},
+                                      {0.5, -0.5, 0.5},
+                                      {0.5, -0.5, -0.5},
 
-        std::copy(tmp.begin(), tmp.end(), std::back_inserter(row_vector));
-        output.push_back(row_vector);
-    }
-    windowBuffer.output = output;
+                                      // right
+                                      {0.5, 0.5, -0.5},
+                                      {0.5, -0.5, -0.5},
+                                      {0.5, -0.5, 0.5},
+                                      {0.5, 0.5, 0.5},
+                                      {0.5, -0.5, 0.5},
+                                      {0.5, 0.5, 0.5},
+
+                                      // let
+                                      {-0.5, 0.5, 0.5},
+                                      {-0.5, -0.5, 0.5},
+                                      {-0.5, -0.5, -0.5},
+                                      {-0.5, 0.5, 0.5},
+                                      {-0.5, -0.5, -0.5},
+                                      {-0.5, 0.5, -0.5},
+
+                                      // bottom
+                                      {-0.5, 0.5, 0.5},
+                                      {-0.5, 0.5, -0.5},
+                                      {0.5, 0.5, -0.5},
+                                      {-0.5, 0.5, 0.5},
+                                      {0.5, 0.5, -0.5},
+                                      {0.5, 0.5, 0.5},
+
+                                      // back
+                                      {0.5, 0.5, 0.5},
+                                      {0.5, -0.5, 0.5},
+                                      {-0.5, -0.5, 0.5},
+                                      {0.5, 0.5, 0.5},
+                                      {-0.5, -0.5, 0.5},
+                                      {-0.5, 0.5, 0.5f}};
+    this->verticies = cubeMesh;
 }
 
-void assemble_empty(WindowBuffer &windowBuffer)
+std::vector<Vector3D> CubeMesh::getDefaultCubeMesh()
 {
-    std::vector<std::vector<char>> output;
-    for (int i = 0; i < windowBuffer.rows; ++i)
-    {
-        std::stringstream row;
-        for (int j = 0; j < windowBuffer.cols; ++j)
-        {
-            row << " ";
-        }
-
-        std::vector<char> row_vector;
-        auto tmp = row.str();
-
-        std::copy(tmp.begin(), tmp.end(), std::back_inserter(row_vector));
-        output.push_back(row_vector);
-    }
-    windowBuffer.output = output;
+    return this->verticies;
 }
 
-void draw_shape(WindowBuffer &windowBuffer)
+ProjectionMatrix::ProjectionMatrix(double fov, double aspect, double near, double far)
 {
-    int row_middle = floor(windowBuffer.rows / 2);
-    int col_middle = floor(windowBuffer.cols / 2);
-    windowBuffer.output[row_middle][col_middle] = '*';
-
-    int constIncr = 5;
-    drawline(windowBuffer, 0, 0, 20, 50);
-
-    // drawline(windowBuffer, 71, 22, 90, 25);
-    // drawline(windowBuffer, col_middle - constIncr, row_middle - constIncr, col_middle + constIncr,
-    //         row_middle - constIncr);
-
-    // drawline(windowBuffer, col_middle + constIncr, row_middle - constIncr, col_middle + constIncr,
-    //          row_middle + constIncr);
-
-    // drawline(windowBuffer, col_middle + constIncr, row_middle + constIncr, col_middle - constIncr,
-    //          row_middle + constIncr);
-
-    // drawline(windowBuffer, col_middle - constIncr, row_middle + constIncr, col_middle - constIncr,
-    //          row_middle - constIncr);
+    double D2R = M_PI / 180.0;
+    double yScale = 1.0 / tan(D2R * fov / 2);
+    double xScale = yScale / aspect;
+    double nearmfar = near - far;
+    std::vector<std::vector<double>> mat = {{xScale, 0, 0, 0},
+                                            {0, yScale, 0, 0},
+                                            {0, 0, (far + near) / nearmfar, -1},
+                                            {0, 0, 2 * far * near / nearmfar, 0}};
+    this->matrix = mat;
 }
 
-void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel)
-{
-    windowBuffer.output[windowBuffer.rows - y - 1][x] = pixel;
-}
-
-// Algorithm implementing Bresenham's algorithm
-void drawline(WindowBuffer &windowBuffer, int x0, int y0, int x1, int y1)
-{
-
-    int dx, dy, p, x, y;
-    dx = x1 - x0;
-    dy = y1 - y0;
-    x = x0;
-    y = y0;
-    p = 2 * dy - dx;
-    while (x < x1)
-    {
-        if (p >= 0)
-        {
-            drawPixel(windowBuffer, x, y, '*');
-            y = y + 1;
-            p = p + 2 * dy - 2 * dx;
-        }
-        else
-        {
-
-            drawPixel(windowBuffer, x, y, '*');
-            p = p + 2 * dy;
-        }
-        x = x + 1;
-    }
-}

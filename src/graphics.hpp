@@ -1,27 +1,71 @@
-#pragma once
-
-#include <sys/ioctl.h>
-#include <unistd.h>
+#ifndef GRAPHICS_HPP
+#define GRAPHICS_HPP
 
 #include <vector>
 
-typedef struct
+class Matrix
 {
-    uint32_t rows;
-    uint32_t cols;
-    std::vector<std::vector<char>> output;
-} WindowBuffer;
+  public:
+    Matrix(){};
+    Matrix(std::vector<std::vector<double>> m) : matrix(m)
+    {
+    }
 
-WindowBuffer getWindowBuffer();
+    std::vector<double> operator[](int i) const
+    {
+        return matrix[i];
+    }
 
-void render(WindowBuffer &windowBuffer);
+  private:
+    std::vector<std::vector<double>> matrix;
+};
 
-void assemble_with_rows(WindowBuffer &windowBuffer);
+class Vector3D
+{
+  public:
+    Vector3D(double x, double y, double z) : x{x}, y{y}, z{z}
+    {
+    }
 
-void assemble_empty(WindowBuffer &windowBuffer);
+    friend Vector3D operator*(Vector3D const &vector, Matrix const &matrix);
+    double x, y, z;
+};
 
-void draw_shape(WindowBuffer &windowBuffer);
+/*
+class Mesh
+{
+  public:
+    Mesh();
 
-void drawline(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2);
+    Mesh(std::vector<Vector3D> &verticies);
 
-void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel);
+    std::vector<Vector3D> getVerticies() const;
+
+  private:
+    std::vector<Vector3D> verticies;
+};
+*/
+
+class CubeMesh
+{
+  public:
+    CubeMesh();
+
+    std::vector<Vector3D> getDefaultCubeMesh();
+
+  private:
+    std::vector<Vector3D> verticies;
+};
+
+class ProjectionMatrix : public Matrix
+{
+  public:
+    ProjectionMatrix(double fov, double aspect, double near, double far);
+
+  private:
+    std::vector<std::vector<double>> matrix;
+};
+
+// Vector3D MultiplyVec3DByMatrix(Vector3D &vec3d, ProjectionMatrix projMat);
+
+#endif

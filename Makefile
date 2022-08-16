@@ -1,5 +1,5 @@
 CXX            := clang++
-CXXFLAGS       := -std=c++20 -Wall -MMD
+CXXFLAGS       := -std=c++20 -lcurses -Wall -MMD 
 BIN_NAME       := exe
 SOURCE_DIR     := src
 BIN_DIR        := bin
@@ -18,7 +18,7 @@ directories:
 
 # Link
 $(BIN_NAME): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $^
+	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$@ $^ 
 
 # Compile
 $(ETC_DIR)/%.o: $(SOURCE_DIR)/%.cpp
