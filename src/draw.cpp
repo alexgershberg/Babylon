@@ -10,7 +10,7 @@ WindowBuffer getWindowBuffer()
 {
     struct winsize window;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); // Get window rows and columns
-    ProjectionMatrix projMat(90, (double)(window.ws_row / window.ws_col), 0.1, 1000);
+    ProjectionMatrix projMat(90, static_cast<double>(window.ws_row) / static_cast<double>(window.ws_col), 0.1, 1000);
     WindowBuffer windowBuffer = {window.ws_row, window.ws_col, {}, projMat};
     return windowBuffer;
 }
@@ -79,8 +79,6 @@ void assembleEmpty(WindowBuffer &windowBuffer)
 
 void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh)
 {
-    std::cout << "[DEBUG] Got to drawShape." << std::endl;
-
     // Draw a star in the middle of the screen.
     int row_middle = floor(windowBuffer.rows / 2);
     int col_middle = floor(windowBuffer.cols / 2);
@@ -89,22 +87,45 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh)
     // TODO: IMPLEMENT 3D GRAPHIC LOGIC HERE
 
     std::vector<Vector3D> projectedVectors;
-    auto projMat = ProjectionMatrix(90, windowBuffer.cols / windowBuffer.rows, 0.1, 1000);
-    for (auto vec : mesh)
+
+    auto projMat = ProjectionMatrix(90, (double)windowBuffer.cols / (double)windowBuffer.rows, 0.1, 1000);
+
+    for (auto &vec : mesh)
     {
-        std::cout << "[DEBUG] For Vector in a mesh?" << std::endl;
         // Project each vector
-        // auto projectedVector = vec * projMat;
-        // projectedVectors.push_back(projectedVector);
+        auto projectedVector = vec * projMat;
+
+        // Force scale into view
+        projectedVector.x += 1;
+        projectedVector.y += 1;
+
+        // Adjust for screen width and height (place it in the middle of the screen)
+
+        projectedVector.x *= 0.5 * static_cast<double>(windowBuffer.cols);
+        projectedVector.y *= 0.5 * static_cast<double>(windowBuffer.rows);
+
+        projectedVectors.push_back(projectedVector);
     }
 
-    int debug = 0;
-
-    for (auto projVec : projectedVectors)
+    // Actually put pixels on the screen now.
+    for (int i = 0; i < projectedVectors.size(); i += 3)
     {
+        // We need to get 3 vectors.
+        auto vec1 = projectedVectors[i];
+        auto vec2 = projectedVectors[i + 1];
+        auto vec3 = projectedVectors[i + 2];
 
-        std::cout << "[DEBUG] " << debug << std::endl;
-        debug++;
+        drawLine(windowBuffer, (int)vec1.x, (int)vec1.y, (int)vec2.x, (int)vec2.y);
+        drawLine(windowBuffer, (int)vec2.x, (int)vec2.y, (int)vec3.x, (int)vec3.y);
+        drawLine(windowBuffer, (int)vec3.x, (int)vec3.y, (int)vec1.x, (int)vec1.y);
+
+        /*
+        std::cout << "[DEBUG] i : " << i << std::endl;
+        std::cout << "[DEBUG] vec1 : " << vec1.x << " " << vec1.y << std::endl;
+        std::cout << "[DEBUG] vec2 : " << vec2.x << " " << vec2.y << std::endl;
+        std::cout << "[DEBUG] vec3 : " << vec3.x << " " << vec3.y << std::endl;
+        std::cout << std::endl;
+    */
     }
 }
 
@@ -149,11 +170,11 @@ void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2)
     {
         if (steep)
         {
-            drawPixel(windowBuffer, x, y, '*');
+            drawPixel(windowBuffer, y, x, 'a');
         }
         else
         {
-            drawPixel(windowBuffer, x, y, '*');
+            drawPixel(windowBuffer, x, y, 'b');
         }
 
         error -= dy;

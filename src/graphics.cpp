@@ -1,8 +1,9 @@
 #include <cmath>
+#include <iostream>
 
 #include "graphics.hpp"
 
-Vector3D operator*(Vector3D const &vector, Matrix const &matrix)
+Vector3D operator*(Vector3D const &vector, ProjectionMatrix const &matrix)
 {
     auto x = vector.x * matrix[0][0] + vector.y * matrix[1][0] + vector.z * matrix[2][0] * matrix[3][0];
     auto y = vector.x * matrix[0][1] + vector.y * matrix[1][1] + vector.z * matrix[2][1] * matrix[3][1];
@@ -45,7 +46,7 @@ CubeMesh::CubeMesh()
                                       {0.5, -0.5, 0.5},
                                       {0.5, 0.5, 0.5},
 
-                                      // let
+                                      // left
                                       {-0.5, 0.5, 0.5},
                                       {-0.5, -0.5, 0.5},
                                       {-0.5, -0.5, -0.5},

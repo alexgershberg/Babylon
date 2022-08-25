@@ -3,13 +3,10 @@
 
 #include <vector>
 
-class Matrix
+class ProjectionMatrix
 {
   public:
-    Matrix(){};
-    Matrix(std::vector<std::vector<double>> m) : matrix(m)
-    {
-    }
+    ProjectionMatrix(double fov, double aspect, double near, double far);
 
     std::vector<double> operator[](int i) const
     {
@@ -27,7 +24,7 @@ class Vector3D
     {
     }
 
-    friend Vector3D operator*(Vector3D const &vector, Matrix const &matrix);
+    friend Vector3D operator*(Vector3D const &vector, ProjectionMatrix const &matrix);
     double x, y, z;
 };
 
@@ -55,15 +52,6 @@ class CubeMesh
 
   private:
     std::vector<Vector3D> verticies;
-};
-
-class ProjectionMatrix : public Matrix
-{
-  public:
-    ProjectionMatrix(double fov, double aspect, double near, double far);
-
-  private:
-    std::vector<std::vector<double>> matrix;
 };
 
 // Vector3D MultiplyVec3DByMatrix(Vector3D &vec3d, ProjectionMatrix projMat);
