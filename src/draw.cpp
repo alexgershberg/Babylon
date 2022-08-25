@@ -18,10 +18,13 @@ WindowBuffer getWindowBuffer()
 void render(WindowBuffer &windowBuffer)
 {
 
-    std::string color = "\033[?25l\033[48;2;256;120;0m"; // "\033[48;2;{r};{g};{b}m"
-    std::cout << color;
+    std::string backgroundColor = "\033[?25l\033[48;2;239;0;255m"; // "\033[48;2;{r};{g};{b}m"
+    std::string pixelColor = "\033[38;2;0;0;0m";
+
+    std::cout << backgroundColor << pixelColor;
 
     auto output = windowBuffer.output;
+
     for (auto row : output)
     {
         for (auto ch : row)
@@ -77,30 +80,37 @@ void assembleEmpty(WindowBuffer &windowBuffer)
     windowBuffer.output = output;
 }
 
-void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh)
+void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta)
 {
-    // Draw a star in the middle of the screen.
-    int row_middle = floor(windowBuffer.rows / 2);
-    int col_middle = floor(windowBuffer.cols / 2);
-    windowBuffer.output[row_middle][col_middle] = '*';
 
     // TODO: IMPLEMENT 3D GRAPHIC LOGIC HERE
 
     std::vector<Vector3D> projectedVectors;
 
-    auto projMat = ProjectionMatrix(90, (double)windowBuffer.cols / (double)windowBuffer.rows, 0.1, 1000);
+    auto projMat = ProjectionMatrix(90, static_cast<double>(windowBuffer.cols) / static_cast<double>(windowBuffer.rows),
+                                    0.1, 1000);
+    auto rotMatX = RotMatX(fTheta);
+    auto rotMatY = RotMatY(fTheta);
+    auto rotMatZ = RotMatZ(fTheta);
 
     for (auto &vec : mesh)
     {
+        //        std::cout << "[DEBUG] vec: " << vec.x << " " << vec.y << " " << vec.z << std::endl;
+
+        auto rotVecZ = vec * rotMatZ;
+        auto rotVecZX = rotVecZ * rotMatX;
+        auto rotVecZXY = rotVecZX * rotMatY;
+
+        rotVecZXY.z += 1;
+
         // Project each vector
-        auto projectedVector = vec * projMat;
+        auto projectedVector = rotVecZXY * projMat;
 
         // Force scale into view
         projectedVector.x += 1;
         projectedVector.y += 1;
 
         // Adjust for screen width and height (place it in the middle of the screen)
-
         projectedVector.x *= 0.5 * static_cast<double>(windowBuffer.cols);
         projectedVector.y *= 0.5 * static_cast<double>(windowBuffer.rows);
 
@@ -127,6 +137,11 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh)
         std::cout << std::endl;
     */
     }
+
+    // Draw a star in the middle of the screen.
+    int row_middle = floor(windowBuffer.rows / 2);
+    int col_middle = floor(windowBuffer.cols / 2);
+    windowBuffer.output[row_middle][col_middle] = '*';
 }
 
 void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel)
@@ -170,11 +185,11 @@ void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2)
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, 'a');
+            drawPixel(windowBuffer, y, x, '-');
         }
         else
         {
-            drawPixel(windowBuffer, x, y, 'b');
+            drawPixel(windowBuffer, x, y, '+');
         }
 
         error -= dy;

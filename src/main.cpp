@@ -18,6 +18,8 @@ int main(int argc, char *argv[], char *environ[])
         noecho();
     }
     // Main rendering loop
+
+    double fTheta = 0;
     while (true)
     {
         auto windowBuffer = getWindowBuffer();
@@ -27,7 +29,7 @@ int main(int argc, char *argv[], char *environ[])
         CubeMesh cube;
         auto cubeMesh = cube.getDefaultCubeMesh();
 
-        drawShape(windowBuffer, cubeMesh);
+        drawShape(windowBuffer, cubeMesh, fTheta);
 
         if (!DEBUG_MODE)
         {
@@ -35,7 +37,8 @@ int main(int argc, char *argv[], char *environ[])
             refresh(); // Refresh the window.
         }
 
-        usleep(200000);
+        usleep(20000);
+        fTheta += 0.01;
     }
 
     if (!DEBUG_MODE)

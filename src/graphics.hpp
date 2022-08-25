@@ -17,6 +17,47 @@ class ProjectionMatrix
     std::vector<std::vector<double>> matrix;
 };
 
+class RotMatX
+{
+  public:
+    RotMatX(double fTheta);
+
+    std::vector<double> operator[](int i) const
+    {
+        return matrix[i];
+    }
+
+  private:
+    std::vector<std::vector<double>> matrix;
+};
+class RotMatY
+{
+  public:
+    RotMatY(double fTheta);
+
+    std::vector<double> operator[](int i) const
+    {
+        return matrix[i];
+    }
+
+  private:
+    std::vector<std::vector<double>> matrix;
+};
+
+class RotMatZ
+{
+  public:
+    RotMatZ(double fTheta);
+
+    std::vector<double> operator[](int i) const
+    {
+        return matrix[i];
+    }
+
+  private:
+    std::vector<std::vector<double>> matrix;
+};
+
 class Vector3D
 {
   public:
@@ -25,6 +66,9 @@ class Vector3D
     }
 
     friend Vector3D operator*(Vector3D const &vector, ProjectionMatrix const &matrix);
+    friend Vector3D operator*(Vector3D const &vector, RotMatX const &matrix);
+    friend Vector3D operator*(Vector3D const &vector, RotMatY const &matrix);
+    friend Vector3D operator*(Vector3D const &vector, RotMatZ const &matrix);
     double x, y, z;
 };
 

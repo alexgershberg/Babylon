@@ -24,7 +24,7 @@ void assembleWithRows(WindowBuffer &windowBuffer);
 
 void assembleEmpty(WindowBuffer &windowBuffer);
 
-void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh);
+void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta);
 
 void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2);
 
