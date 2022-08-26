@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 #include "draw.hpp"
 #include "graphics.hpp"
@@ -20,18 +21,41 @@ void render(WindowBuffer &windowBuffer)
 
     std::string backgroundColor = "\033[?25l\033[48;2;239;0;255m"; // "\033[48;2;{r};{g};{b}m"
     std::string pixelColor = "\033[38;2;0;0;0m";
+    std::string reset = "\033[0m";
+    std::string clear = "\033[2J";
 
-    std::cout << backgroundColor << pixelColor;
+    // ESC[<line>;<column>f          // Move cursor to line # and column #
 
     auto output = windowBuffer.output;
 
+    /* V2
+     *
+
+    std::stringstream out;
+    for (int i = 0; i < output.size(); ++i)
+    {
+        auto &row = output[i];
+        for (int j = 0; j < row.size(); ++j)
+        {
+            std::string draw = "\033[<" + std::to_string(i) + ">;<" + std::to_string(j) + ">f" + output[i][j];
+            out << draw;
+        }
+    }
+
+    std::cout << out.str();
+
+    */
+
+    std::cout << backgroundColor << pixelColor;
     for (auto row : output)
     {
         for (auto ch : row)
         {
             std::cout << ch;
+            usleep(5);
         }
     }
+
     std::cout << std::flush;
 }
 
@@ -89,9 +113,9 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
 
     auto projMat = ProjectionMatrix(90, static_cast<double>(windowBuffer.cols) / static_cast<double>(windowBuffer.rows),
                                     0.1, 1000);
-    auto rotMatX = RotMatX(fTheta);
-    auto rotMatY = RotMatY(fTheta);
-    auto rotMatZ = RotMatZ(fTheta);
+    auto rotMatX = RotMatX(fTheta * 0.7);
+    auto rotMatY = RotMatY(fTheta * 0.2);
+    auto rotMatZ = RotMatZ(fTheta * 0.1);
 
     for (auto &vec : mesh)
     {
@@ -101,7 +125,7 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
         auto rotVecZX = rotVecZ * rotMatX;
         auto rotVecZXY = rotVecZX * rotMatY;
 
-        rotVecZXY.z += 1;
+        rotVecZXY.z += 2;
 
         // Project each vector
         auto projectedVector = rotVecZXY * projMat;
@@ -185,11 +209,11 @@ void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2)
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, '-');
+            drawPixel(windowBuffer, y, x, 'Q');
         }
         else
         {
-            drawPixel(windowBuffer, x, y, '+');
+            drawPixel(windowBuffer, x, y, 'Z');
         }
 
         error -= dy;

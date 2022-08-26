@@ -38,7 +38,7 @@ int main(int argc, char *argv[], char *environ[])
         }
 
         usleep(20000);
-        fTheta += 0.01;
+        fTheta += 0.1;
     }
 
     if (!DEBUG_MODE)
