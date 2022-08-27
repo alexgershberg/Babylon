@@ -192,6 +192,7 @@ CubeMesh::CubeMesh()
                                       {-1.063307f, 2.126636f, -0.772529f},  {0.406139f, 2.126636f, -1.249988f}};
 
 */
+
     this->verticies = cubeMesh;
 }
 

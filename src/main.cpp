@@ -22,9 +22,7 @@ int main(int argc, char *argv[], char *environ[])
     double fTheta = 0;
     while (true)
     {
-        auto windowBuffer = getWindowBuffer();
-
-        assembleEmpty(windowBuffer);
+        auto windowBuffer = WindowBuffer();
 
         CubeMesh cube;
         auto cubeMesh = cube.getDefaultCubeMesh();

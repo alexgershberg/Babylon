@@ -6,25 +6,30 @@
 #include "draw.hpp"
 #include "graphics.hpp"
 
-// Taken from: https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
-WindowBuffer getWindowBuffer()
+WindowBuffer::WindowBuffer()
 {
-    struct winsize window;
+    struct winsize window; // Taken from:
+                           // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); // Get window rows and columns
-    ProjectionMatrix projMat(90, static_cast<double>(window.ws_row) / static_cast<double>(window.ws_col), 0.1, 1000);
-    WindowBuffer windowBuffer = {window.ws_row, window.ws_col, {}, projMat};
-    return windowBuffer;
+    rows = window.ws_row;
+    cols = window.ws_col;
+
+    // Assemble empty. TODO: Or we could assemble with row numbers
+    assembleEmpty(this);
+};
+
+Pixel::Pixel(char value, uint32_t BRGB) : value{value}, BRGB{BRGB}
+{
 }
 
 void render(WindowBuffer &windowBuffer)
 {
 
-    std::string backgroundColor = "\033[?25l\033[48;2;239;0;255m"; // "\033[48;2;{r};{g};{b}m"
-    std::string pixelColor = "\033[38;2;0;0;0m";
+    std::string backgroundColor = "\033[?25l\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
+    std::string pixelColor = "\033[38;2;255;255;255m";         // Foreground color "\033[38;2;{r};{g};{b}m"
     std::string reset = "\033[0m";
     std::string clear = "\033[2J";
-
-    // ESC[<line>;<column>f          // Move cursor to line # and column #
+    // ESC[<line>;<column>f // Move cursor to line # and column #
 
     auto output = windowBuffer.output;
 
@@ -48,15 +53,18 @@ void render(WindowBuffer &windowBuffer)
     std::cout << backgroundColor << pixelColor;
     for (auto row : output)
     {
-        for (auto ch : row)
+        for (auto pixel : row)
         {
-            std::cout << ch;
+            std::cout << pixel.value;
             //            usleep(5);
         }
     }
 
     std::cout << std::flush;
 }
+
+/*
+TODO: Needs to be updated to support "Pixels"
 
 // Add row numbers to window buffer
 void assemblWithRows(WindowBuffer &windowBuffer)
@@ -83,24 +91,22 @@ void assemblWithRows(WindowBuffer &windowBuffer)
     windowBuffer.output = output;
 }
 
-void assembleEmpty(WindowBuffer &windowBuffer)
+*/
+
+void assembleEmpty(WindowBuffer *windowBuffer)
 {
-    std::vector<std::vector<char>> output;
-    for (int i = 0; i < windowBuffer.rows; ++i)
+    std::vector<std::vector<Pixel>> output;
+    for (int i = 0; i < windowBuffer->rows; ++i)
     {
-        std::stringstream row;
-        for (int j = 0; j < windowBuffer.cols; ++j)
+        std::vector<Pixel> row_vector;
+        for (int j = 0; j < windowBuffer->cols; ++j)
         {
-            row << " ";
+            row_vector.push_back(Pixel(' ', 0));
         }
 
-        std::vector<char> row_vector;
-        auto tmp = row.str();
-
-        std::copy(tmp.begin(), tmp.end(), std::back_inserter(row_vector));
         output.push_back(row_vector);
     }
-    windowBuffer.output = output;
+    windowBuffer->output = output;
 }
 
 void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta)
@@ -123,7 +129,7 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
         auto rotVecZXY = rotVecZX * rotMatY;
 
         // Push object forwards into view TODO: This should be done by keyboard input
-        rotVecZXY.z += 3.5;
+        rotVecZXY.z += 2;
 
         // Project each vector
         auto projectedVector = rotVecZXY * projMat;
@@ -139,7 +145,6 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
         projectedVectors.push_back(projectedVector);
     }
 
-    std::cout << std::endl;
     // Actually put pixels on the screen now.
     for (int i = 0; i < projectedVectors.size(); i += 3)
     {
@@ -156,10 +161,10 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
     // Draw a star in the middle of the screen.
     int row_middle = floor(windowBuffer.rows / 2);
     int col_middle = floor(windowBuffer.cols / 2);
-    windowBuffer.output[row_middle][col_middle] = '*';
+    windowBuffer.output[row_middle][col_middle] = Pixel('*', 0);
 }
 
-void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel)
+void drawPixel(WindowBuffer &windowBuffer, int x, int y, Pixel pixel)
 {
     // Silently skip over this pixel if we can't draw it.
     // TODO: Don't silently skip over it. :)
@@ -199,11 +204,11 @@ void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, doubl
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, 'q');
+            drawPixel(windowBuffer, y, x, Pixel('$', 0));
         }
         else
         {
-            drawPixel(windowBuffer, x, y, 'b');
+            drawPixel(windowBuffer, x, y, Pixel('%', 0));
         }
 
         error -= dy;
