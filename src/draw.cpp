@@ -26,16 +26,18 @@ Pixel::Pixel(char value, uint32_t BRGB) : value{value}, BRGB{BRGB}
 
 void render(WindowBuffer &windowBuffer)
 {
+    char noCursor[] = "\033[?25l";
+    char backgroundColor[] = "\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
+    char pixelColor[] = "\033[38;2;38;255;0m";   // Foreground color "\033[38;2;{r};{g};{b}m"
+    // char reset[] = "\033[0m";
+    // char clear[] = "\033[2J";
 
-    std::string backgroundColor = "\033[?25l\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
-    std::string pixelColor = "\033[38;2;255;255;255m";         // Foreground color "\033[38;2;{r};{g};{b}m"
-    std::string reset = "\033[0m";
-    std::string clear = "\033[2J";
+    // char red[] = "\033[38;2;255;0;0m";
     // ESC[<line>;<column>f // Move cursor to line # and column #
 
     auto output = windowBuffer.output;
 
-    std::cout << backgroundColor << pixelColor;
+    printf("%s%s%s", noCursor, backgroundColor, pixelColor);
     for (auto row : output)
     {
         for (auto pixel : row)
@@ -187,11 +189,11 @@ void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, doubl
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, Pixel('$', 0));
+            drawPixel(windowBuffer, y, x, Pixel(',', 0));
         }
         else
         {
-            drawPixel(windowBuffer, x, y, Pixel('%', 0));
+            drawPixel(windowBuffer, x, y, Pixel('.', 0));
         }
 
         error -= dy;

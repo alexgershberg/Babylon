@@ -70,6 +70,7 @@ class Vector3D
     friend Vector3D operator*(Vector3D const &vector, RotMatX const &matrix);
     friend Vector3D operator*(Vector3D const &vector, RotMatY const &matrix);
     friend Vector3D operator*(Vector3D const &vector, RotMatZ const &matrix);
+
     double x, y, z;
 };
 
