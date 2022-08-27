@@ -1,3 +1,5 @@
+#include <ncurses.h>
+
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -33,34 +35,15 @@ void render(WindowBuffer &windowBuffer)
 
     auto output = windowBuffer.output;
 
-    /* V2
-     *
-
-    std::stringstream out;
-    for (int i = 0; i < output.size(); ++i)
-    {
-        auto &row = output[i]; for (int j = 0; j < row.size(); ++j)
-        {
-            std::string draw = "\033[<" + std::to_string(i) + ">;<" + std::to_string(j) + ">f" + output[i][j];
-            out << draw;
-        }
-    }
-
-    std::cout << out.str();
-
-    */
-
     std::cout << backgroundColor << pixelColor;
     for (auto row : output)
     {
         for (auto pixel : row)
         {
-            std::cout << pixel.value;
-            //            usleep(5);
+            addch(pixel.value);
         }
     }
-
-    std::cout << std::flush;
+    move(0, 0);
 }
 
 /*
