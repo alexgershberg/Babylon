@@ -34,8 +34,7 @@ void render(WindowBuffer &windowBuffer)
     std::stringstream out;
     for (int i = 0; i < output.size(); ++i)
     {
-        auto &row = output[i];
-        for (int j = 0; j < row.size(); ++j)
+        auto &row = output[i]; for (int j = 0; j < row.size(); ++j)
         {
             std::string draw = "\033[<" + std::to_string(i) + ">;<" + std::to_string(j) + ">f" + output[i][j];
             out << draw;
@@ -52,7 +51,7 @@ void render(WindowBuffer &windowBuffer)
         for (auto ch : row)
         {
             std::cout << ch;
-            usleep(5);
+            //            usleep(5);
         }
     }
 
@@ -113,19 +112,18 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
 
     auto projMat = ProjectionMatrix(90, static_cast<double>(windowBuffer.cols) / static_cast<double>(windowBuffer.rows),
                                     0.1, 1000);
-    auto rotMatX = RotMatX(fTheta * 0.7);
+    auto rotMatX = RotMatX(fTheta);
     auto rotMatY = RotMatY(fTheta * 0.2);
     auto rotMatZ = RotMatZ(fTheta * 0.1);
 
     for (auto &vec : mesh)
     {
-        //        std::cout << "[DEBUG] vec: " << vec.x << " " << vec.y << " " << vec.z << std::endl;
-
         auto rotVecZ = vec * rotMatZ;
         auto rotVecZX = rotVecZ * rotMatX;
         auto rotVecZXY = rotVecZX * rotMatY;
 
-        rotVecZXY.z += 2;
+        // Push object forwards into view TODO: This should be done by keyboard input
+        rotVecZXY.z += 3.5;
 
         // Project each vector
         auto projectedVector = rotVecZXY * projMat;
@@ -141,6 +139,7 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
         projectedVectors.push_back(projectedVector);
     }
 
+    std::cout << std::endl;
     // Actually put pixels on the screen now.
     for (int i = 0; i < projectedVectors.size(); i += 3)
     {
@@ -149,17 +148,9 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
         auto vec2 = projectedVectors[i + 1];
         auto vec3 = projectedVectors[i + 2];
 
-        drawLine(windowBuffer, (int)vec1.x, (int)vec1.y, (int)vec2.x, (int)vec2.y);
-        drawLine(windowBuffer, (int)vec2.x, (int)vec2.y, (int)vec3.x, (int)vec3.y);
-        drawLine(windowBuffer, (int)vec3.x, (int)vec3.y, (int)vec1.x, (int)vec1.y);
-
-        /*
-        std::cout << "[DEBUG] i : " << i << std::endl;
-        std::cout << "[DEBUG] vec1 : " << vec1.x << " " << vec1.y << std::endl;
-        std::cout << "[DEBUG] vec2 : " << vec2.x << " " << vec2.y << std::endl;
-        std::cout << "[DEBUG] vec3 : " << vec3.x << " " << vec3.y << std::endl;
-        std::cout << std::endl;
-    */
+        drawLine(windowBuffer, vec1.x, vec1.y, vec2.x, vec2.y);
+        drawLine(windowBuffer, vec2.x, vec2.y, vec3.x, vec3.y);
+        drawLine(windowBuffer, vec3.x, vec3.y, vec1.x, vec1.y);
     }
 
     // Draw a star in the middle of the screen.
@@ -170,7 +161,6 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
 
 void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel)
 {
-
     // Silently skip over this pixel if we can't draw it.
     // TODO: Don't silently skip over it. :)
     if (x < windowBuffer.cols && y < windowBuffer.rows)
@@ -180,10 +170,10 @@ void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel)
 }
 
 // Bresenham's line algorithm : http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm
-void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2)
+void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, double y2)
 {
     // Bresenham's line algorithm
-    const bool steep = (abs(y2 - y1) > abs(x2 - x1));
+    const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
     if (steep)
     {
         std::swap(x1, y1);
@@ -196,24 +186,24 @@ void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2)
         std::swap(y1, y2);
     }
 
-    const int dx = x2 - x1;
-    const int dy = abs(y2 - y1);
+    const double dx = x2 - x1;
+    const double dy = fabs(y2 - y1);
 
-    int error = dx / 2.0;
+    double error = dx / 2.0f;
     const int ystep = (y1 < y2) ? 1 : -1;
-    int y = y1;
+    int y = (int)y1;
 
-    const int maxX = x2;
+    const int maxX = (int)x2;
 
-    for (int x = x1; x <= maxX; x++)
+    for (int x = (int)x1; x <= maxX; x++)
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, 'Q');
+            drawPixel(windowBuffer, y, x, 'q');
         }
         else
         {
-            drawPixel(windowBuffer, x, y, 'Z');
+            drawPixel(windowBuffer, x, y, 'b');
         }
 
         error -= dy;

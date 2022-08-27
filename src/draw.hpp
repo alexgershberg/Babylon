@@ -26,7 +26,7 @@ void assembleEmpty(WindowBuffer &windowBuffer);
 
 void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta);
 
-void drawLine(WindowBuffer &windowBuffer, int x1, int y1, int x2, int y2);
+void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, double y2);
 
 void drawPixel(WindowBuffer &windowBuffer, int x, int y, char pixel);
 
