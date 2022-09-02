@@ -1,12 +1,16 @@
-#include <curses.h> // "man ncurses" for manual page
+#include <ncurses.h> // "man ncurses" for manual page
 
+#include <chrono>
 #include <iostream>
+#include <string>
+#include <thread>
 
 #include "draw.hpp"
 #include "parameters.hpp"
 
 int main(int argc, char *argv[], char *environ[])
 {
+
     bool DEBUG_MODE = parseParameters(argc, argv, environ);
 
     // Curses defaults
@@ -17,26 +21,37 @@ int main(int argc, char *argv[], char *environ[])
         cbreak();
         noecho();
     }
-    // Main rendering loop
 
+    // Main rendering loop
     double fTheta = 0;
+    auto previous = std::chrono::system_clock::now();
+    double lag = 0.0;
     while (true)
     {
+        int MS_PER_TICK = 20;
+
+        auto current = std::chrono::system_clock::now();
+        auto elapsed = current - previous;
+        previous = current;
+
+        lag += elapsed.count();
+
         auto windowBuffer = WindowBuffer();
+        while (lag >= MS_PER_TICK)
+        {
+            fTheta += 0.000001; // Tick()
+
+            lag -= MS_PER_TICK;
+        }
 
         CubeMesh cube;
         auto cubeMesh = cube.getDefaultCubeMesh();
-
         drawShape(windowBuffer, cubeMesh, fTheta);
-
         if (!DEBUG_MODE)
         {
             render(windowBuffer);
             refresh(); // Refresh the window.
         }
-
-        usleep(20000);
-        fTheta += 0.1;
     }
 
     if (!DEBUG_MODE)
