@@ -73,6 +73,17 @@ Vector3D operator*(Vector3D const &vector, RotMatZ const &matrix)
 
 CubeMesh::CubeMesh()
 {
+    /*
+    // Counter - Clockwise
+    std::vector<Vector3D> cubeMesh = {
+        // front
+        {-0.5, 0.5, -0.5},
+        {-0.5, -0.5, -0.5},
+        {0.5, -0.5, -0.5},
+    };*/
+
+    /*
+    // Clockwise
     std::vector<Vector3D> cubeMesh = {
         // front
         {-0.5, 0.5, -0.5},
@@ -126,7 +137,8 @@ CubeMesh::CubeMesh()
         {-0.5, -0.5, 0.5},
         {-0.5, 0.5, 0.5},
     };
-    /*
+*/
+
     std::vector<Vector3D> cubeMesh = {{0.1024f, -0.9435f, 0.3151f},         {0.7002f, -0.6617f, 0.2680f},
                                       {-0.2680f, -0.9435f, 0.1947f},        {-0.2680f, -0.9435f, -0.1947f},
                                       {0.1024f, -0.9435f, -0.3151f},        {0.9050f, -0.3304f, 0.2680f},
@@ -190,8 +202,6 @@ CubeMesh::CubeMesh()
                                       {1.720474f, 1.314341f, -1.249992f},   {0.406139f, 2.126636f, 1.249988f},
                                       {1.314324f, 2.126629f, 0.000000f},    {-1.063307f, 2.126636f, 0.772529f},
                                       {-1.063307f, 2.126636f, -0.772529f},  {0.406139f, 2.126636f, -1.249988f}};
-
-*/
 
     this->verticies = cubeMesh;
 }

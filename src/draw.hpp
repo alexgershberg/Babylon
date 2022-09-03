@@ -37,13 +37,13 @@ std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta,
 
 void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec1, Vector3D const &vec2, Vector3D const &vec3);
 
-void render(WindowBuffer &windowBuffer);
+void flush(WindowBuffer &windowBuffer);
 
 void assembleWithRows(WindowBuffer &windowBuffer);
 
 void assembleEmpty(WindowBuffer *windowBuffer);
 
-void drawDebug(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh);
+void drawDebug(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta);
 
 void drawFps(WindowBuffer &windowBuffer, int frames);
 

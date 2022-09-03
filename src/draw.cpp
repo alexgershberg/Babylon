@@ -45,7 +45,7 @@ std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta,
         auto rotVecZXY = rotVecZX * rotMatY;
 
         // Push object forwards into view TODO: This should be done by keyboard input
-        rotVecZXY.z += 2;
+        rotVecZXY.z += 3.5;
 
         // Project each vector
         auto projectedVector = rotVecZXY * projMat;
@@ -64,11 +64,34 @@ std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta,
     return projectedVectors;
 }
 
-void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec1, Vector3D const &vec2, Vector3D const &vec3)
+// TODO: Add a bounding box later to improve performance of this algorithm
+void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const &vec1, Vector3D const &vec2)
 {
+    for (double i = 0; i < windowBuffer.rows; i++)
+    {
+        for (double j = 0; j < windowBuffer.cols; j++)
+        {
+            Vector2D point = {j, i};
+
+            float w0 = edgeFunction(vec1, vec2, point);
+            float w1 = edgeFunction(vec2, vec0, point);
+            float w2 = edgeFunction(vec0, vec1, point);
+
+            if (w0 >= 0 && w1 >= 0 && w2 >= 0)
+            {
+                /*
+                std::cout << "w0: " << w0 << std::endl;
+                std::cout << "w1: " << w1 << std::endl;
+                std::cout << "w2: " << w2 << std::endl;
+                std::cout << std::endl;
+                */
+                drawPixel(windowBuffer, j, i, Pixel('R', 0));
+            }
+        }
+    }
 }
 
-void render(WindowBuffer &windowBuffer)
+void flush(WindowBuffer &windowBuffer)
 {
     char noCursor[] = "\033[?25l";
     char backgroundColor[] = "\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
@@ -138,8 +161,24 @@ void assembleEmpty(WindowBuffer *windowBuffer)
     windowBuffer->output = output;
 }
 
+// Temp Testing function
+void drawDebug(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta)
+{
+    std::vector<Vector3D> projectedVectors = projectVectors(mesh, fTheta, windowBuffer.cols, windowBuffer.rows);
+
+    for (int i = 0; i < projectedVectors.size(); i += 3)
+    {
+        auto vec0 = projectedVectors[i];
+        auto vec1 = projectedVectors[i + 1];
+        auto vec2 = projectedVectors[i + 2];
+
+        rasterize(windowBuffer, vec0, vec1, vec2);
+    }
+}
+
 void drawFps(WindowBuffer &windowBuffer, int frames)
 {
+    // Yeah, i'm hardcoding "FPS: ". Don't you have anything else TODO:?
     drawPixel(windowBuffer, 0, 0, Pixel('F', 0));
     drawPixel(windowBuffer, 1, 0, Pixel('P', 0));
     drawPixel(windowBuffer, 2, 0, Pixel('S', 0));
@@ -157,8 +196,6 @@ void drawFps(WindowBuffer &windowBuffer, int frames)
 
 void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta)
 {
-
-    // TODO: IMPLEMENT 3D GRAPHIC LOGIC HERE
     std::vector<Vector3D> projectedVectors = projectVectors(mesh, fTheta, windowBuffer.cols, windowBuffer.rows);
 
     // Actually put pixels on the screen now.
@@ -192,7 +229,6 @@ void drawPixel(WindowBuffer &windowBuffer, int x, int y, Pixel pixel)
 // Bresenham's line algorithm : http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm
 void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, double y2)
 {
-    // Bresenham's line algorithm
     const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
     if (steep)
     {
@@ -219,11 +255,11 @@ void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, doubl
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, Pixel(',', 0));
+            drawPixel(windowBuffer, y, x, Pixel('$', 0));
         }
         else
         {
-            drawPixel(windowBuffer, x, y, Pixel('.', 0));
+            drawPixel(windowBuffer, x, y, Pixel('@', 0));
         }
 
         error -= dy;

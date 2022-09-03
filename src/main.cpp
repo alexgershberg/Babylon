@@ -34,7 +34,7 @@ int main(int argc, char *argv[], char *environ[])
     double lag = 0.0;
     while (true)
     {
-        int MS_PER_TICK = 16'667; // Microseconds per tick. 1'000'000 ms in a second.
+        int MS_PER_TICK = 50'000; // Microseconds per tick. 1'000'000 ms in a second.
                                   // 1'000'000 / 20 Ticks = 50'000ms per tick. 20 tps.
                                   // 1'000'000 / 60 Ticks = 16'667ms per tick. 60 tps.
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[], char *environ[])
         auto windowBuffer = WindowBuffer();
         while (lag >= MS_PER_TICK)
         {
-            fTheta += 0.02; // Tick()
+            fTheta += 0.04; // Tick()
 
             lag -= MS_PER_TICK;
         }
@@ -55,7 +55,8 @@ int main(int argc, char *argv[], char *environ[])
         // Calculate the location of the shape itself, and draw it into WindwoBuffer
         CubeMesh cube;
         auto cubeMesh = cube.getDefaultCubeMesh();
-        drawShape(windowBuffer, cubeMesh, fTheta);
+        //       drawShape(windowBuffer, cubeMesh, fTheta);
+        drawDebug(windowBuffer, cubeMesh, fTheta);
 
         // Update FPS Counter when 1 second passes
         auto fps_current = std::chrono::system_clock::now();
@@ -67,10 +68,15 @@ int main(int argc, char *argv[], char *environ[])
             frames = 0;
         }
 
-        drawFps(windowBuffer, counted_frames);
-        render(windowBuffer);
-        frames += 1;
-        refresh(); // Refresh the window.
+        if (!DEBUG_MODE)
+        {
+            drawFps(windowBuffer, counted_frames);
+
+            flush(windowBuffer); // Flush the WindowBuffer to ostream
+            refresh();           // Refresh the window.
+
+            frames += 1;
+        }
     }
 
     if (!DEBUG_MODE)
