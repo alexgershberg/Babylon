@@ -24,6 +24,50 @@ Pixel::Pixel(char value, uint32_t BRGB) : value{value}, BRGB{BRGB}
 {
 }
 
+float edgeFunction(Vector3D const &a, Vector3D const &b, Vector2D const &c)
+{
+    return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
+}
+
+std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta, int width, int height)
+{
+    std::vector<Vector3D> projectedVectors;
+
+    auto projMat = ProjectionMatrix(90, static_cast<double>(width) / static_cast<double>(height), 0.1, 1000);
+    auto rotMatX = RotMatX(fTheta);
+    auto rotMatY = RotMatY(fTheta * 0.2);
+    auto rotMatZ = RotMatZ(fTheta * 0.1);
+
+    for (auto &vec : mesh)
+    {
+        auto rotVecZ = vec * rotMatZ;
+        auto rotVecZX = rotVecZ * rotMatX;
+        auto rotVecZXY = rotVecZX * rotMatY;
+
+        // Push object forwards into view TODO: This should be done by keyboard input
+        rotVecZXY.z += 2;
+
+        // Project each vector
+        auto projectedVector = rotVecZXY * projMat;
+
+        // Force scale into view
+        projectedVector.x += 1;
+        projectedVector.y += 1;
+
+        // Adjust for screen width and height (place it in the middle of the screen)
+        projectedVector.x *= 0.5 * static_cast<double>(width);
+        projectedVector.y *= 0.5 * static_cast<double>(height);
+
+        projectedVectors.push_back(projectedVector);
+    }
+
+    return projectedVectors;
+}
+
+void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec1, Vector3D const &vec2, Vector3D const &vec3)
+{
+}
+
 void render(WindowBuffer &windowBuffer)
 {
     char noCursor[] = "\033[?25l";
@@ -115,37 +159,7 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
 {
 
     // TODO: IMPLEMENT 3D GRAPHIC LOGIC HERE
-
-    std::vector<Vector3D> projectedVectors;
-
-    auto projMat = ProjectionMatrix(90, static_cast<double>(windowBuffer.cols) / static_cast<double>(windowBuffer.rows),
-                                    0.1, 1000);
-    auto rotMatX = RotMatX(fTheta);
-    auto rotMatY = RotMatY(fTheta * 0.2);
-    auto rotMatZ = RotMatZ(fTheta * 0.1);
-
-    for (auto &vec : mesh)
-    {
-        auto rotVecZ = vec * rotMatZ;
-        auto rotVecZX = rotVecZ * rotMatX;
-        auto rotVecZXY = rotVecZX * rotMatY;
-
-        // Push object forwards into view TODO: This should be done by keyboard input
-        rotVecZXY.z += 2;
-
-        // Project each vector
-        auto projectedVector = rotVecZXY * projMat;
-
-        // Force scale into view
-        projectedVector.x += 1;
-        projectedVector.y += 1;
-
-        // Adjust for screen width and height (place it in the middle of the screen)
-        projectedVector.x *= 0.5 * static_cast<double>(windowBuffer.cols);
-        projectedVector.y *= 0.5 * static_cast<double>(windowBuffer.rows);
-
-        projectedVectors.push_back(projectedVector);
-    }
+    std::vector<Vector3D> projectedVectors = projectVectors(mesh, fTheta, windowBuffer.cols, windowBuffer.rows);
 
     // Actually put pixels on the screen now.
     for (int i = 0; i < projectedVectors.size(); i += 3)

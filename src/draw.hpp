@@ -28,11 +28,22 @@ class WindowBuffer
     std::vector<std::vector<Pixel>> output;
 };
 
+float edgeFunction(
+    Vector3D const &a, Vector3D const &b,
+    Vector2D const &
+        c); // https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage
+
+std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta, int width, int height);
+
+void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec1, Vector3D const &vec2, Vector3D const &vec3);
+
 void render(WindowBuffer &windowBuffer);
 
 void assembleWithRows(WindowBuffer &windowBuffer);
 
 void assembleEmpty(WindowBuffer *windowBuffer);
+
+void drawDebug(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh);
 
 void drawFps(WindowBuffer &windowBuffer, int frames);
 

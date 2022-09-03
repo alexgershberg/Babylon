@@ -110,6 +110,4 @@ class CubeMesh
     std::vector<Vector3D> verticies;
 };
 
-// Vector3D MultiplyVec3DByMatrix(Vector3D &vec3d, ProjectionMatrix projMat);
-
 #endif
