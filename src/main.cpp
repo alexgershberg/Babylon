@@ -9,10 +9,8 @@
 #include "draw.hpp"
 #include "parameters.hpp"
 
-int main(int argc, char *argv[], char *environ[])
+void startncurs(bool DEBUG_MODE)
 {
-    bool DEBUG_MODE = parseParameters(argc, argv, environ);
-
     // Curses defaults
     if (!DEBUG_MODE)
     {
@@ -20,9 +18,17 @@ int main(int argc, char *argv[], char *environ[])
         nonl();
         cbreak();
         noecho();
+        curs_set(0); // Disable cursor
 
-        initializeColors();
+        initializeBasicColors();
     }
+}
+
+int main(int argc, char *argv[], char *environ[])
+{
+    bool DEBUG_MODE = parseParameters(argc, argv, environ);
+
+    startncurs(DEBUG_MODE);
 
     // Main rendering loop : https://gameprogrammingpatterns.com/game-loop.html
     double fTheta = 0; // Variable for tracking 3D model offset
@@ -59,6 +65,9 @@ int main(int argc, char *argv[], char *environ[])
         auto cubeMesh = cube.getDefaultCubeMesh();
         drawShape(windowBuffer, cubeMesh, fTheta);
         drawDebug(windowBuffer, cubeMesh, fTheta);
+
+        // TODO: To support more colors in the future, we could write a subroutine
+        // to colors defined in the mesh, but not yet initialised. Would also need to keep track of initialized colors.
 
         // Update FPS Counter when 1 second passes
         auto fps_current = std::chrono::system_clock::now();
