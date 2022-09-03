@@ -33,7 +33,9 @@ int main(int argc, char *argv[], char *environ[])
     auto fps_previous = std::chrono::system_clock::now();
     while (true)
     {
-        int MS_PER_TICK = 50'000; // Microseconds per tick. 1'000'000 ms in a second.
+        int MS_PER_TICK = 16'667; // Microseconds per tick. 1'000'000 ms in a second.
+                                  // 1'000'000 / 20 Ticks = 50'000ms per tick. 20 tps.
+                                  // 1'000'000 / 60 Ticks = 16'667ms per tick. 60 tps.
 
         auto current = std::chrono::system_clock::now();
         auto elapsed = current - previous;
