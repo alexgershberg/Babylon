@@ -12,11 +12,13 @@ class Pixel
 {
   public:
     Pixel();
-    Pixel(char value, uint32_t BRGB);
+    Pixel(char value, int color);
 
     char value = ' '; // TODO: Temp char value. Later on it should be entirely defined by BRGB
-    uint32_t BRGB = 0b00000000'00000000'00000000'00000000; // 0b 00000000'00000000'00000000'00000000'
-                                                           // Brightness  RED      GREEN    BLUE
+    int color = 0;
+
+    // uint32_t BRGB = 0b00000000'00000000'00000000'00000000; // 0b 00000000'00000000'00000000'00000000'
+    // Brightness  RED      GREEN    BLUE
 };
 
 class WindowBuffer
@@ -28,10 +30,8 @@ class WindowBuffer
     std::vector<std::vector<Pixel>> output;
 };
 
-float edgeFunction(
-    Vector3D const &a, Vector3D const &b,
-    Vector2D const &
-        c); // https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage
+// https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage
+float edgeFunction(Vector3D const &a, Vector3D const &b, Vector2D const &c);
 
 std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta, int width, int height);
 

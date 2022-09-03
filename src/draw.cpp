@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include "colors.hpp"
 #include "draw.hpp"
 #include "graphics.hpp"
 
@@ -20,7 +21,7 @@ WindowBuffer::WindowBuffer()
     assembleEmpty(this);
 };
 
-Pixel::Pixel(char value, uint32_t BRGB) : value{value}, BRGB{BRGB}
+Pixel::Pixel(char value, int color) : value{value}, color{color}
 {
 }
 
@@ -45,7 +46,7 @@ std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta,
         auto rotVecZXY = rotVecZX * rotMatY;
 
         // Push object forwards into view TODO: This should be done by keyboard input
-        rotVecZXY.z += 3.5;
+        rotVecZXY.z += 2.5;
 
         // Project each vector
         auto projectedVector = rotVecZXY * projMat;
@@ -104,6 +105,39 @@ void flush(WindowBuffer &windowBuffer)
 
     auto output = windowBuffer.output;
 
+    // printf("%s%s%s", noCursor, backgroundColor, pixelColor);
+    for (auto row : output)
+    {
+        for (auto pixel : row)
+        {
+            attron(COLOR_PAIR(HACKER_PAIR));
+            attron(A_BOLD);
+            attron(A_REVERSE);
+
+            addch(pixel.value);
+
+            attroff(COLOR_PAIR(HACKER_PAIR));
+            attroff(A_REVERSE);
+            attroff(A_BOLD);
+        }
+    }
+    move(0, 0);
+}
+
+/*
+void flush(WindowBuffer &windowBuffer)
+{
+    char noCursor[] = "\033[?25l";
+    char backgroundColor[] = "\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
+    char pixelColor[] = "\033[38;2;38;255;0m";   // Foreground color "\033[38;2;{r};{g};{b}m"
+    // char reset[] = "\033[0m";
+    // char clear[] = "\033[2J";
+
+    // char red[] = "\033[38;2;255;0;0m";
+    // ESC[<line>;<column>f // Move cursor to line # and column #
+
+    auto output = windowBuffer.output;
+
     printf("%s%s%s", noCursor, backgroundColor, pixelColor);
     for (auto row : output)
     {
@@ -114,6 +148,7 @@ void flush(WindowBuffer &windowBuffer)
     }
     move(0, 0);
 }
+*/
 
 /*
 TODO: Needs to be updated to support "Pixels"
@@ -255,11 +290,11 @@ void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, doubl
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, Pixel('$', 0));
+            drawPixel(windowBuffer, y, x, Pixel('.', 0));
         }
         else
         {
-            drawPixel(windowBuffer, x, y, Pixel('@', 0));
+            drawPixel(windowBuffer, x, y, Pixel(',', 0));
         }
 
         error -= dy;

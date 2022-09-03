@@ -5,12 +5,12 @@
 #include <string>
 #include <thread>
 
+#include "colors.hpp"
 #include "draw.hpp"
 #include "parameters.hpp"
 
 int main(int argc, char *argv[], char *environ[])
 {
-
     bool DEBUG_MODE = parseParameters(argc, argv, environ);
 
     // Curses defaults
@@ -20,6 +20,8 @@ int main(int argc, char *argv[], char *environ[])
         nonl();
         cbreak();
         noecho();
+
+        initializeColors();
     }
 
     // Main rendering loop : https://gameprogrammingpatterns.com/game-loop.html
@@ -55,7 +57,7 @@ int main(int argc, char *argv[], char *environ[])
         // Calculate the location of the shape itself, and draw it into WindwoBuffer
         CubeMesh cube;
         auto cubeMesh = cube.getDefaultCubeMesh();
-        //       drawShape(windowBuffer, cubeMesh, fTheta);
+        drawShape(windowBuffer, cubeMesh, fTheta);
         drawDebug(windowBuffer, cubeMesh, fTheta);
 
         // Update FPS Counter when 1 second passes
