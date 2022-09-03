@@ -34,6 +34,8 @@ void assembleWithRows(WindowBuffer &windowBuffer);
 
 void assembleEmpty(WindowBuffer *windowBuffer);
 
+void drawFps(WindowBuffer &windowBuffer, int frames);
+
 void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta);
 
 void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, double y2);

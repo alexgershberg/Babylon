@@ -94,6 +94,23 @@ void assembleEmpty(WindowBuffer *windowBuffer)
     windowBuffer->output = output;
 }
 
+void drawFps(WindowBuffer &windowBuffer, int frames)
+{
+    drawPixel(windowBuffer, 0, 0, Pixel('F', 0));
+    drawPixel(windowBuffer, 1, 0, Pixel('P', 0));
+    drawPixel(windowBuffer, 2, 0, Pixel('S', 0));
+    drawPixel(windowBuffer, 3, 0, Pixel(':', 0));
+    drawPixel(windowBuffer, 4, 0, Pixel(' ', 0));
+
+    auto fps_string = std::to_string(frames);
+    int i = 5;
+    for (auto ch : fps_string)
+    {
+        drawPixel(windowBuffer, i, 0, Pixel(ch, 0));
+        i++;
+    }
+}
+
 void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double fTheta)
 {
 
