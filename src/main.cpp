@@ -22,15 +22,16 @@ int main(int argc, char *argv[], char *environ[])
         noecho();
     }
 
-    // Main rendering loop
-    double fTheta = 0;
-    auto previous = std::chrono::system_clock::now();
-    double lag = 0.0;
+    // Main rendering loop : https://gameprogrammingpatterns.com/game-loop.html
+    double fTheta = 0; // Variable for tracking 3D model offset
 
-    // Keep track of fps
+    // Variables for keeping track of FPS
     int frames = 0;
     int counted_frames = 0;
     auto fps_previous = std::chrono::system_clock::now();
+
+    auto previous = std::chrono::system_clock::now();
+    double lag = 0.0;
     while (true)
     {
         int MS_PER_TICK = 16'667; // Microseconds per tick. 1'000'000 ms in a second.
