@@ -168,8 +168,7 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
 
 void drawPixel(WindowBuffer &windowBuffer, int x, int y, Pixel pixel)
 {
-    // Silently skip over this pixel if we can't draw it.
-    // TODO: Don't silently skip over it. :)
+    // Skip over this pixel if we can't draw it. (Out of bounds)
     if (x < windowBuffer.cols && y < windowBuffer.rows)
     {
         windowBuffer.output[windowBuffer.rows - y - 1][x] = pixel;
