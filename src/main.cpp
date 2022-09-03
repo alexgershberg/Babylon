@@ -56,7 +56,7 @@ int main(int argc, char *argv[], char *environ[])
         auto cubeMesh = cube.getDefaultCubeMesh();
         drawShape(windowBuffer, cubeMesh, fTheta);
 
-        // Render FPS Counter when 1 second passes
+        // Update FPS Counter when 1 second passes
         auto fps_current = std::chrono::system_clock::now();
         auto fps_elapsed = fps_current - fps_previous;
         if (fps_elapsed.count() >= 1'000'000) // Did 1 second pass? Reset FPS.
