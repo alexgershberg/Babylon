@@ -19,8 +19,7 @@ void startncurs(bool DEBUG_MODE)
         cbreak();
         noecho();
         curs_set(0); // Disable cursor
-
-        initializeBasicColors();
+        // initializeBasicColors();
     }
 }
 
@@ -40,6 +39,7 @@ int main(int argc, char *argv[], char *environ[])
 
     auto previous = std::chrono::system_clock::now();
     double lag = 0.0;
+
     while (true)
     {
         int MS_PER_TICK = 50'000; // Microseconds per tick. 1'000'000 ms in a second.

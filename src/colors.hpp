@@ -13,8 +13,12 @@
 #define HACKER_PAIR_2 141 // Green Black
 #define HACKER_PAIR_3 151 // Blue Black
 
+int assembleColorCode(int R, int G, int B);
+
 void initializeBasicColors();
 
 void initializeAdvancedColors();
+
+void makePairs();
 
 #endif

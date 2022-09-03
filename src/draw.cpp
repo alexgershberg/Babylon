@@ -110,15 +110,15 @@ void flush(WindowBuffer &windowBuffer)
     {
         for (auto pixel : row)
         {
-            attron(COLOR_PAIR(HACKER_PAIR));
-            attron(A_BOLD);
-            attron(A_REVERSE);
+            // attron(COLOR_PAIR(666));
+            //  attron(A_BOLD);
+            //  attron(A_REVERSE);
 
             addch(pixel.value);
 
-            attroff(COLOR_PAIR(HACKER_PAIR));
-            attroff(A_REVERSE);
-            attroff(A_BOLD);
+            // attroff(A_REVERSE);
+            //  attroff(A_BOLD);
+            // attroff(COLOR_PAIR(666));
         }
     }
     move(0, 0);
