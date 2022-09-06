@@ -80,12 +80,6 @@ void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const 
 
             if (w0 >= 0 && w1 >= 0 && w2 >= 0)
             {
-                /*
-                std::cout << "w0: " << w0 << std::endl;
-                std::cout << "w1: " << w1 << std::endl;
-                std::cout << "w2: " << w2 << std::endl;
-                std::cout << std::endl;
-                */
                 drawPixel(windowBuffer, j, i, Pixel('R', 0));
             }
         }
@@ -94,61 +88,20 @@ void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const 
 
 void flush(WindowBuffer &windowBuffer)
 {
-    char noCursor[] = "\033[?25l";
-    char backgroundColor[] = "\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
-    char pixelColor[] = "\033[38;2;38;255;0m";   // Foreground color "\033[38;2;{r};{g};{b}m"
-    // char reset[] = "\033[0m";
-    // char clear[] = "\033[2J";
-
-    // char red[] = "\033[38;2;255;0;0m";
-    // ESC[<line>;<column>f // Move cursor to line # and column #
-
     auto output = windowBuffer.output;
 
-    // printf("%s%s%s", noCursor, backgroundColor, pixelColor);
     for (auto row : output)
     {
         for (auto pixel : row)
         {
-            // attron(COLOR_PAIR(666));
-            //  attron(A_BOLD);
-            //  attron(A_REVERSE);
+            attron(COLOR_PAIR(BABYLON_TEST_COLOR_PAIR));
 
             addch(pixel.value);
-
-            // attroff(A_REVERSE);
-            //  attroff(A_BOLD);
-            // attroff(COLOR_PAIR(666));
+            attroff(COLOR_PAIR(BABYLON_TEST_COLOR_PAIR));
         }
     }
     move(0, 0);
 }
-
-/*
-void flush(WindowBuffer &windowBuffer)
-{
-    char noCursor[] = "\033[?25l";
-    char backgroundColor[] = "\033[48;2;0;0;0m"; // "\033[48;2;{r};{g};{b}m"
-    char pixelColor[] = "\033[38;2;38;255;0m";   // Foreground color "\033[38;2;{r};{g};{b}m"
-    // char reset[] = "\033[0m";
-    // char clear[] = "\033[2J";
-
-    // char red[] = "\033[38;2;255;0;0m";
-    // ESC[<line>;<column>f // Move cursor to line # and column #
-
-    auto output = windowBuffer.output;
-
-    printf("%s%s%s", noCursor, backgroundColor, pixelColor);
-    for (auto row : output)
-    {
-        for (auto pixel : row)
-        {
-            addch(pixel.value);
-        }
-    }
-    move(0, 0);
-}
-*/
 
 /*
 TODO: Needs to be updated to support "Pixels"
@@ -177,7 +130,6 @@ void assemblWithRows(WindowBuffer &windowBuffer)
     }
     windowBuffer.output = output;
 }
-
 */
 
 void assembleEmpty(WindowBuffer *windowBuffer)

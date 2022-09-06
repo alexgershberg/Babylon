@@ -19,7 +19,7 @@ void startncurs(bool DEBUG_MODE)
         cbreak();
         noecho();
         curs_set(0); // Disable cursor
-        // initializeBasicColors();
+        initializeBasicColors();
     }
 }
 

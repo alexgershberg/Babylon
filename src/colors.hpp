@@ -1,6 +1,9 @@
 #ifndef COLORS_HPP
 #define COLORS_HPP
 
+#define BABYLON_TEST_COLOR_PAIR 200 // For some reason, doesn't allow all int values
+#define BABYLON_TEST_COLOR 199
+
 #define BABYLON_WHITE 0
 #define BABYLON_BLACK 1
 #define BABYLON_PINK 2
@@ -8,17 +11,6 @@
 #define BABYLON_GREEN 4
 #define BABYLON_BLUE 5
 
-#define HACKER_PAIR_0 121 // Pink Black
-#define HACKER_PAIR_1 131 // Red Black
-#define HACKER_PAIR_2 141 // Green Black
-#define HACKER_PAIR_3 151 // Blue Black
-
-int assembleColorCode(int R, int G, int B);
-
 void initializeBasicColors();
-
-void initializeAdvancedColors();
-
-void makePairs();
 
 #endif
