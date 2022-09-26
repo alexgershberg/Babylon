@@ -11,8 +11,8 @@
 
 WindowBuffer::WindowBuffer()
 {
-    struct winsize window; // Taken from:
-                           // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
+    struct winsize window;                     // Taken from:
+                                               // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); // Get window rows and columns
     rows = window.ws_row;
     cols = window.ws_col;
@@ -21,7 +21,7 @@ WindowBuffer::WindowBuffer()
     assembleEmpty(this);
 };
 
-Pixel::Pixel(char value, int color) : value{value}, color{color}
+Pixel::Pixel(char value, ColorPair color) : value{value}, color{color}
 {
 }
 
@@ -46,7 +46,7 @@ std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta,
         auto rotVecZXY = rotVecZX * rotMatY;
 
         // Push object forwards into view TODO: This should be done by keyboard input
-        rotVecZXY.z += 2.5;
+        rotVecZXY.z += 5.5;
 
         // Project each vector
         auto projectedVector = rotVecZXY * projMat;
@@ -66,7 +66,8 @@ std::vector<Vector3D> projectVectors(std::vector<Vector3D> &mesh, double fTheta,
 }
 
 // TODO: Add a bounding box later to improve performance of this algorithm
-void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const &vec1, Vector3D const &vec2)
+void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const &vec1, Vector3D const &vec2,
+               ColorPair color)
 {
     for (double i = 0; i < windowBuffer.rows; i++)
     {
@@ -80,7 +81,7 @@ void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const 
 
             if (w0 >= 0 && w1 >= 0 && w2 >= 0)
             {
-                drawPixel(windowBuffer, j, i, Pixel('.', 0));
+                drawPixel(windowBuffer, j, i, Pixel('.', color));
             }
         }
     }
@@ -95,11 +96,11 @@ void flush(WindowBuffer &windowBuffer)
         for (auto pixel : row)
         {
 
-            attron(COLOR_PAIR(BABYLON_TEST_COLOR_PAIR));
+            attron(COLOR_PAIR(pixel.color));
 
             addch(pixel.value);
 
-            attroff(COLOR_PAIR(BABYLON_TEST_COLOR_PAIR));
+            attroff(COLOR_PAIR(pixel.color));
         }
     }
     move(0, 0);
@@ -142,7 +143,7 @@ void assembleEmpty(WindowBuffer *windowBuffer)
         std::vector<Pixel> row_vector;
         for (int j = 0; j < windowBuffer->cols; ++j)
         {
-            row_vector.push_back(Pixel(' ', 0));
+            row_vector.push_back(Pixel(' '));
         }
 
         output.push_back(row_vector);
@@ -161,24 +162,24 @@ void drawDebug(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
         auto vec1 = projectedVectors[i + 1];
         auto vec2 = projectedVectors[i + 2];
 
-        rasterize(windowBuffer, vec0, vec1, vec2);
+        rasterize(windowBuffer, vec0, vec1, vec2, BABYLON_WHITE_COLOR_PAIR);
     }
 }
 
 void drawFps(WindowBuffer &windowBuffer, int frames)
 {
     // Yeah, i'm hardcoding "FPS: ". Don't you have anything else TODO:?
-    drawPixel(windowBuffer, 0, 0, Pixel('F', 0));
-    drawPixel(windowBuffer, 1, 0, Pixel('P', 0));
-    drawPixel(windowBuffer, 2, 0, Pixel('S', 0));
-    drawPixel(windowBuffer, 3, 0, Pixel(':', 0));
-    drawPixel(windowBuffer, 4, 0, Pixel(' ', 0));
+    drawPixel(windowBuffer, 0, 0, Pixel('F'));
+    drawPixel(windowBuffer, 1, 0, Pixel('P'));
+    drawPixel(windowBuffer, 2, 0, Pixel('S'));
+    drawPixel(windowBuffer, 3, 0, Pixel(':'));
+    drawPixel(windowBuffer, 4, 0, Pixel(' '));
 
     auto fps_string = std::to_string(frames);
     int i = 5;
     for (auto ch : fps_string)
     {
-        drawPixel(windowBuffer, i, 0, Pixel(ch, 0));
+        drawPixel(windowBuffer, i, 0, Pixel(ch));
         i++;
     }
 }
@@ -191,19 +192,23 @@ void drawShape(WindowBuffer &windowBuffer, std::vector<Vector3D> &mesh, double f
     for (int i = 0; i < projectedVectors.size(); i += 3)
     {
         // We need to get 3 vectors.
-        auto vec1 = projectedVectors[i];
-        auto vec2 = projectedVectors[i + 1];
-        auto vec3 = projectedVectors[i + 2];
+        Vector3D vec3d1 = projectedVectors[i];
+        Vector3D vec3d2 = projectedVectors[i + 1];
+        Vector3D vec3d3 = projectedVectors[i + 2];
 
-        drawLine(windowBuffer, vec1.x, vec1.y, vec2.x, vec2.y);
-        drawLine(windowBuffer, vec2.x, vec2.y, vec3.x, vec3.y);
-        drawLine(windowBuffer, vec3.x, vec3.y, vec1.x, vec1.y);
+        Vector2D vec2d1 = {vec3d1.x, vec3d1.y};
+        Vector2D vec2d2 = {vec3d2.x, vec3d2.y};
+        Vector2D vec2d3 = {vec3d3.x, vec3d3.y};
+
+        drawLine(windowBuffer, vec2d1, vec2d2, BABYLON_RED_COLOR_PAIR);
+        drawLine(windowBuffer, vec2d2, vec2d3, BABYLON_GREEN_COLOR_PAIR);
+        drawLine(windowBuffer, vec2d3, vec2d1, BABYLON_BLUE_COLOR_PAIR);
     }
 
     // Draw a star in the middle of the screen.
     int row_middle = floor(windowBuffer.rows / 2);
     int col_middle = floor(windowBuffer.cols / 2);
-    windowBuffer.output[row_middle][col_middle] = Pixel('*', 0);
+    windowBuffer.output[row_middle][col_middle] = Pixel('*');
 }
 
 void drawPixel(WindowBuffer &windowBuffer, int x, int y, Pixel pixel)
@@ -216,8 +221,14 @@ void drawPixel(WindowBuffer &windowBuffer, int x, int y, Pixel pixel)
 }
 
 // Bresenham's line algorithm : http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm
-void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, double y2)
+void drawLine(WindowBuffer &windowBuffer, Vector2D vec1, Vector2D vec2, ColorPair color)
 {
+    double x1 = vec1.x;
+    double y1 = vec1.y;
+
+    double x2 = vec2.x;
+    double y2 = vec2.y;
+
     const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
     if (steep)
     {
@@ -244,11 +255,11 @@ void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, doubl
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, Pixel('$', 0));
+            drawPixel(windowBuffer, y, x, Pixel('$', color));
         }
         else
         {
-            drawPixel(windowBuffer, x, y, Pixel('@', 0));
+            drawPixel(windowBuffer, x, y, Pixel('@', color));
         }
 
         error -= dy;
