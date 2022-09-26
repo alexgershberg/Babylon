@@ -52,19 +52,20 @@ int main(int argc, char *argv[], char *environ[])
 
         lag += elapsed.count();
 
-        auto windowBuffer = WindowBuffer();
         while (lag >= MS_PER_TICK)
         {
-            fTheta += 0.04; // Tick()
+            fTheta += 0.1; // Tick()
 
             lag -= MS_PER_TICK;
         }
+
+        auto windowBuffer = WindowBuffer();
 
         // Calculate the location of the shape itself, and draw it into WindwoBuffer
         CubeMesh cube;
         auto cubeMesh = cube.getDefaultCubeMesh();
         drawShape(windowBuffer, cubeMesh, fTheta);
-        drawDebug(windowBuffer, cubeMesh, fTheta);
+        // drawDebug(windowBuffer, cubeMesh, fTheta);
 
         // TODO: To support more colors in the future, we could write a subroutine
         // to colors defined in the mesh, but not yet initialised. Would also need to keep track of initialized colors.

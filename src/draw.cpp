@@ -80,7 +80,7 @@ void rasterize(WindowBuffer &windowBuffer, Vector3D const &vec0, Vector3D const 
 
             if (w0 >= 0 && w1 >= 0 && w2 >= 0)
             {
-                drawPixel(windowBuffer, j, i, Pixel('R', 0));
+                drawPixel(windowBuffer, j, i, Pixel('.', 0));
             }
         }
     }
@@ -94,9 +94,11 @@ void flush(WindowBuffer &windowBuffer)
     {
         for (auto pixel : row)
         {
+
             attron(COLOR_PAIR(BABYLON_TEST_COLOR_PAIR));
 
             addch(pixel.value);
+
             attroff(COLOR_PAIR(BABYLON_TEST_COLOR_PAIR));
         }
     }
@@ -242,11 +244,11 @@ void drawLine(WindowBuffer &windowBuffer, double x1, double y1, double x2, doubl
     {
         if (steep)
         {
-            drawPixel(windowBuffer, y, x, Pixel('.', 0));
+            drawPixel(windowBuffer, y, x, Pixel('$', 0));
         }
         else
         {
-            drawPixel(windowBuffer, x, y, Pixel(',', 0));
+            drawPixel(windowBuffer, x, y, Pixel('@', 0));
         }
 
         error -= dy;
