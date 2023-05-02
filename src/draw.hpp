@@ -13,7 +13,7 @@ class Pixel
 {
   public:
     Pixel();
-    Pixel(char value, ColorPair color = BABYLON_RED_COLOR_PAIR);
+    explicit Pixel(char value, ColorPair color = BABYLON_RED_COLOR_PAIR);
 
     char value = ' ';
     ColorPair color;

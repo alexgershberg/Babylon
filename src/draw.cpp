@@ -11,8 +11,8 @@
 
 WindowBuffer::WindowBuffer()
 {
-    struct winsize window;                     // Taken from:
-                                               // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
+    struct winsize window; // Taken from:
+                           // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &window); // Get window rows and columns
     rows = window.ws_row;
     cols = window.ws_col;
